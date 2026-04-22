@@ -3,116 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lenormand Line of Five by Luna</title>
+    <title>Lenormand Five Cards - Luna</title>
     <style>
         body { 
-            display: flex; flex-direction: column; align-items: center; 
-            background-color: #fff5f5; background-image: radial-gradient(#e0c0c0 0.5px, transparent 0.5px); 
-            background-size: 20px 20px; font-family: serif; color: #886666; 
-            margin: 0; padding: 20px; min-height: 100vh; text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background-color: #fff5f5; 
+            background-image: radial-gradient(#e0c0c0 0.5px, transparent 0.5px); 
+            background-size: 20px 20px; 
+            font-family: serif; 
+            color: #886666; 
+            margin: 0; 
+            padding: 10px; /* 余白を少し削り幅を確保 */
+            min-height: 100vh; 
+            text-align: center; 
             box-sizing: border-box;
         }
         
-        h2 { margin-top: 30px; font-size: 1.5rem; font-weight: normal; border-bottom: 1px solid #e0c0c0; padding-bottom: 10px; width: 100%; max-width: 400px; }
+        h2 { margin-top: 20px; font-size: 1.4rem; font-weight: normal; border-bottom: 1px solid #e0c0c0; padding-bottom: 8px; width: 100%; max-width: 350px; }
         
-        .instruction { font-size: 0.9rem; color: #a08888; margin: 15px 0; line-height: 1.6; width: 100%; }
+        .instruction { font-size: 0.85rem; color: #a08888; margin: 15px 0; line-height: 1.5; width: 100%; display: block; }
 
-        #spread-view { 
-            display: flex; flex-direction: column; align-items: center; 
-            width: 100%; flex: 1;
+        .setup-area { display: flex; flex-direction: column; align-items: center; width: 100%; margin: 10px 0; }
+        
+        select { 
+            padding: 10px 15px; border-radius: 20px; border: 1px solid #e0c0c0; 
+            color: #886666; font-family: serif; background: #fff; cursor: pointer; 
+            margin-bottom: 15px; width: 220px; font-size: 0.95rem;
         }
 
-        /* 5枚並べるためのコンテナ */
+        #spread-view { display: none; flex-direction: column; align-items: center; width: 100%; }
+
+        /* 5枚並べるコンテナ：スマホでの突き抜けを防止 */
         .spread-container { 
-            display: flex; flex-wrap: nowrap; justify-content: center; gap: 10px; 
-            width: 100%; max-width: 1000px; margin-top: 20px;
+            display: flex; 
+            flex-direction: row; 
+            justify-content: center; 
+            align-items: flex-start;
+            gap: 4px; /* カード同士の間隔を最小限に */
+            width: 100%; 
+            max-width: 1000px; 
+            margin: 15px auto;
         }
         
-        .card-wrapper { display: flex; flex-direction: column; align-items: center; width: 18%; max-width: 150px; }
-        .card-info { font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; min-height: 1.2rem; opacity: 0; transition: opacity 0.5s; width: 100%; }
+        .card-wrapper { display: flex; flex-direction: column; align-items: center; width: 19%; }
+
+        /* カード名のエリア：高さを固定し、文字サイズを小さくして改行崩れを防ぐ */
+        .card-info { 
+            font-size: 0.7rem; /* 文字を少し小さく */
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            height: 2.2rem; /* 高さを2行分で固定。1行でも2行でもカードの位置がズレない */
+            display: flex;
+            align-items: center; /* 縦方向中央揃え */
+            justify-content: center;
+            opacity: 0; 
+            transition: opacity 0.5s; 
+            width: 100%; 
+            line-height: 1.1;
+            word-break: break-word; /* 溢れる場合は英単語でも改行 */
+        }
         
         .card-container { width: 100%; aspect-ratio: 1008 / 1420; perspective: 1000px; cursor: pointer; }
         .card-inner { width: 100%; height: 100%; position: relative; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 6px; border: 1.5px solid #e0c0c0; background: #fff; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 4px; border: 1px solid #e0c0c0; background: #fff; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .card-back { transform: rotateY(180deg); }
         img { width: 100%; height: 100%; object-fit: cover; }
 
-        button { margin: 40px 0; padding: 12px 40px; border-radius: 30px; border: 1px solid #e0c0c0; background: #fff; color: #886666; cursor: pointer; font-family: serif; font-size: 1rem; }
-        button:hover { background: #fffafa; }
+        .btn-action { margin-top: 30px; padding: 10px 35px; border-radius: 30px; border: 1px solid #e0c0c0; background: #fff; color: #886666; cursor: pointer; font-family: serif; font-size: 0.95rem; }
 
-        footer { margin-top: auto; padding: 20px 0; font-size: 0.8rem; color: #b09a9a; }
+        footer { margin-top: auto; padding: 25px 0 10px; font-size: 0.75rem; color: #b09a9a; width: 100%; }
 
-        @media (max-width: 600px) {
-            .spread-container { gap: 5px; }
-            .card-info { font-size: 0.7rem; }
-            h2 { font-size: 1.2rem; }
+        /* PCなど広い画面では文字を少し大きく */
+        @media (min-width: 601px) {
+            .card-info { font-size: 0.85rem; height: 1.5rem; }
+            .spread-container { gap: 10px; }
+            .card-wrapper { max-width: 150px; }
         }
     </style>
 </head>
 <body>
 
-    <h2>Line of Five</h2>
+    <h2>Five-Cards Spread</h2>
+
+    <div id="setup" class="setup-area">
+        <p class="instruction">対象（シグニフィケーター）を選択してください</p>
+        <select id="sig-choice">
+            <option value="1">1. Rider</option><option value="2">2. Clover</option><option value="3">3. Ship</option>
+            <option value="4">4. House</option><option value="5">5. Tree</option><option value="6">6. Clouds</option>
+            <option value="7">7. Snake</option><option value="8">8. Coffin</option><option value="9">9. Bouquet</option>
+            <option value="10">10. Scythe</option><option value="11">11. Birchrod</option><option value="12">12. Birds</option>
+            <option value="13">13. Child</option><option value="14">14. Fox</option><option value="15">15. Bear</option>
+            <option value="16">16. Stars</option><option value="17">17. Stork</option><option value="18">18. Dog</option>
+            <option value="19">19. Tower</option><option value="20">20. Garden</option><option value="21">21. Mountain</option>
+            <option value="22">22. Crossroad</option><option value="23">23. Mice</option><option value="24">24. Heart</option>
+            <option value="25">25. Ring</option><option value="26">26. Book</option><option value="27">27. Letter</option>
+            <option value="28">28. Gentleman</option><option value="29" selected>29. Lady</option><option value="30">30. Lilly</option>
+            <option value="31">31. Sun</option><option value="32">32. Moon</option><option value="33">33. Key</option>
+            <option value="34">34. Fish</option><option value="35">35. Anchor</option><option value="36">36. Cross</option>
+        </select>
+        <button class="btn-action" onclick="initSpread()">占う</button>
+    </div>
 
     <div id="spread-view">
         <p class="instruction">
-            質問を思い浮かべて、カードを1枚ずつクリックしてください。
+            中央はシグニフィケーターです。<br>
+            カードをクリックしてください。
         </p>
-
+        
         <div class="spread-container">
-            <div class="card-wrapper">
-                <div id="info-0" class="card-info"></div>
-                <div class="card-container" onclick="flipCard(0)">
-                    <div class="card-inner" id="card-0">
-                        <div class="card-front"><img src="images/back.png"></div>
-                        <div class="card-back"><img id="img-0" src=""></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div id="info-1" class="card-info"></div>
-                <div class="card-container" onclick="flipCard(1)">
-                    <div class="card-inner" id="card-1">
-                        <div class="card-front"><img src="images/back.png"></div>
-                        <div class="card-back"><img id="img-1" src=""></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div id="info-2" class="card-info"></div>
-                <div class="card-container" onclick="flipCard(2)">
-                    <div class="card-inner" id="card-2">
-                        <div class="card-front"><img src="images/back.png"></div>
-                        <div class="card-back"><img id="img-2" src=""></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div id="info-3" class="card-info"></div>
-                <div class="card-container" onclick="flipCard(3)">
-                    <div class="card-inner" id="card-3">
-                        <div class="card-front"><img src="images/back.png"></div>
-                        <div class="card-back"><img id="img-3" src=""></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div id="info-4" class="card-info"></div>
-                <div class="card-container" onclick="flipCard(4)">
-                    <div class="card-inner" id="card-4">
-                        <div class="card-front"><img src="images/back.png"></div>
-                        <div class="card-back"><img id="img-4" src=""></div>
-                    </div>
-                </div>
-            </div>
+            <div class="card-wrapper"><div id="info-0" class="card-info"></div><div class="card-container" onclick="flipCard(0)"><div class="card-inner" id="card-0"><div class="card-front"><img src="images/back.png"></div><div class="card-back"><img id="img-0" src=""></div></div></div></div>
+            <div class="card-wrapper"><div id="info-1" class="card-info"></div><div class="card-container" onclick="flipCard(1)"><div class="card-inner" id="card-1"><div class="card-front"><img src="images/back.png"></div><div class="card-back"><img id="img-1" src=""></div></div></div></div>
+            <div class="card-wrapper"><div id="info-2" class="card-info"></div><div class="card-container" onclick="flipCard(2)"><div class="card-inner" id="card-2"><div class="card-front"><img src="images/back.png"></div><div class="card-back"><img id="img-2" src=""></div></div></div></div>
+            <div class="card-wrapper"><div id="info-3" class="card-info"></div><div class="card-container" onclick="flipCard(3)"><div class="card-inner" id="card-3"><div class="card-front"><img src="images/back.png"></div><div class="card-back"><img id="img-3" src=""></div></div></div></div>
+            <div class="card-wrapper"><div id="info-4" class="card-info"></div><div class="card-container" onclick="flipCard(4)"><div class="card-inner" id="card-4"><div class="card-front"><img src="images/back.png"></div><div class="card-back"><img id="img-4" src=""></div></div></div></div>
         </div>
 
-        <button onclick="initSpread()">Shuffle & Reset</button>
+        <button class="btn-action" onclick="resetApp()">Reset</button>
     </div>
 
-    <footer>
-        &copy; Luna
-    </footer>
+    <footer>&copy; Luna</footer>
 
 <script>
     const cardNames = {
@@ -125,43 +137,47 @@
     };
 
     function initSpread() {
-        // カードを伏せ、情報を隠す
-        for (let i = 0; i < 5; i++) {
-            document.getElementById(`card-${i}`).classList.remove('is-flipped');
-            document.getElementById(`info-${i}`).style.opacity = "0";
+        const sigId = parseInt(document.getElementById('sig-choice').value);
+        let deck = [];
+        for (let i = 1; i <= 36; i++) {
+            if (i !== sigId) deck.push(i);
         }
 
-        // シャッフル処理
-        let deck = Array.from({length: 36}, (_, i) => i + 1);
         for (let i = deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
 
-        // 新しいカードをセット（演出のため少し遅らせる）
-        setTimeout(() => {
-            for (let i = 0; i < 5; i++) {
-                const id = deck[i];
-                document.getElementById(`img-${i}`).src = `images/card${id}.png`;
-                document.getElementById(`info-${i}`).innerText = `${id}. ${cardNames[id]}`;
-            }
-        }, 500);
+        const selectedIds = [deck[0], deck[1], sigId, deck[2], deck[3]];
+
+        for (let i = 0; i < 5; i++) {
+            const id = selectedIds[i];
+            document.getElementById(`img-${i}`).src = `images/card${id}.png`;
+            document.getElementById(`info-${i}`).innerText = `${id}. ${cardNames[id]}`;
+        }
+
+        document.getElementById('setup').style.display = 'none';
+        document.getElementById('spread-view').style.display = 'flex';
     }
 
     function flipCard(index) {
         const cardInner = document.getElementById(`card-${index}`);
         const info = document.getElementById(`info-${index}`);
-
         if (cardInner.classList.contains('is-flipped')) return;
-
         cardInner.classList.add('is-flipped');
-        setTimeout(() => {
-            info.style.opacity = "1";
-        }, 300);
+        setTimeout(() => { info.style.opacity = "1"; }, 300);
     }
 
-    // 初回実行
-    window.onload = initSpread;
+    function resetApp() {
+        for (let i = 0; i < 5; i++) {
+            document.getElementById(`card-${i}`).classList.remove('is-flipped');
+            document.getElementById(`info-${i}`).style.opacity = "0";
+        }
+        setTimeout(() => {
+            document.getElementById('spread-view').style.display = 'none';
+            document.getElementById('setup').style.display = 'flex';
+        }, 600);
+    }
 </script>
 </body>
 </html>
